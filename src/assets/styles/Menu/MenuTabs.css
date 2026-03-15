@@ -1,0 +1,31 @@
+.menuTabsSection{
+  background: black;
+  text-align:center;
+  padding:40px 20px;
+}
+
+.reservationButton{
+  background:#8d1b1b !important;
+  color:white !important;
+  margin-bottom:40px !important;
+}
+
+.tabsContainer{
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.menuTab{
+  background:#8d1b1b !important;
+  color:white !important;
+}
+
+@media(max-width:1000px){
+
+  .tabsContainer{
+    gap:10px;
+  }
+
+}

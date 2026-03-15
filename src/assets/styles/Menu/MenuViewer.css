@@ -1,0 +1,31 @@
+.menuViewerContainer{
+  background:black;
+  padding:60px;
+  text-align:center;
+}
+
+.menuViewer{
+  background:#d8d2c9;
+  height: 200svh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#7c1c23;
+}
+
+.menuNotes{
+  color:#cfcfcf;
+  margin-top:40px;
+  font-size:14px;
+  max-width:900px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+@media(max-width:1000px){
+
+  .menuViewer{
+    height:80svh;
+  }
+
+}

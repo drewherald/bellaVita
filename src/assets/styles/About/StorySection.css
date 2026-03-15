@@ -1,0 +1,28 @@
+.storySection{
+  background:#0b0b0b;
+  color:white;
+  text-align:center;
+  padding:80px 20px;
+}
+
+.storyTitle{
+  margin-bottom:40px !important;
+}
+
+.storyImage{
+  background:#d8d2c9;
+  color:#7c1c23;
+  padding:60px;
+  border-radius:20px;
+  max-width:700px;
+  margin:0 auto 40px auto;
+}
+
+.storyText{
+  max-width:850px;
+  margin:auto;
+  line-height:1.7;
+  display:flex;
+  flex-direction:column;
+  gap:25px;
+}

@@ -1,0 +1,15 @@
+.mapSection{
+  background:#0b0b0b;
+  padding:60px 20px;
+}
+
+.mapPlaceholder{
+  background:#d8d2c9;
+  height:350px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#7c1c23;
+  max-width:900px;
+  margin:auto;
+}

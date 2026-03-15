@@ -1,0 +1,29 @@
+.aboutHero{
+  height: 70svh;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+}
+
+.aboutHero::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.45);
+}
+
+.aboutHeroTitle{
+  color:white;
+  z-index:2;
+}
+
+@media(max-width:1000px){
+
+  .aboutHero{
+    height:50svh;
+  }
+
+}

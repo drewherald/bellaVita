@@ -1,0 +1,36 @@
+.reservationCTA{
+  height: 70svh;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.reservationOverlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+}
+
+.reservationContent{
+  text-align:center;
+  color:white;
+  z-index:2;
+}
+
+.reserveButton{
+  margin-top:20px !important;
+  background:#8d1b1b !important;
+  color:white !important;
+}
+
+@media(max-width:1000px){
+
+  .reservationCTA{
+      height: 50svh;
+
+  }
+
+}

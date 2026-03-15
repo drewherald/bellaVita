@@ -1,0 +1,31 @@
+.menuCardsContainer{
+  display:flex;
+  gap:30px;
+  padding:60px;
+  justify-content:center;
+  background: black;
+}
+
+.menuCard{
+  background:#d8d2c9;
+  height: 100svh;
+  width:40svw;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#7c1c23;
+  font-weight:bold;
+}
+
+@media(max-width:1000px){
+
+  .menuCardsContainer{
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .menuCard{
+    width:90%;
+  }
+
+}

@@ -1,0 +1,48 @@
+.locationSection{
+  background:#0b0b0b;
+  color:white;
+  text-align:center;
+  padding:70px 20px;
+}
+
+.addressTitle{
+  font-size:32px !important;
+  margin-bottom:20px !important;
+}
+
+.contactText{
+  margin-bottom:40px !important;
+}
+
+.divider{
+  width:40svw;
+  margin:30px auto;
+  border:1px solid #ccc;
+}
+
+.hoursGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:30px;
+  max-width:500px;
+  margin:auto;
+}
+
+.hoursTitle{
+  font-weight:bold !important;
+}
+
+.hoursNote{
+  margin-top:30px !important;
+  max-width:500px;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+@media(max-width:1000px){
+
+  .hoursGrid{
+    grid-template-columns:1fr;
+  }
+
+}
