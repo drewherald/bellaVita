@@ -2,8 +2,9 @@ import { Box } from "@mui/material";
 import hero from "../../assets/photos/home/heroImage.png";
 import logo from '../../assets/photos/bellaVitaLogo.png'
 import RedButton from "../RedButton";
+import '../../assets/styles/ComingSoon/ComingSoonHero.css'
 
-export default function Hero() {
+export default function ComingSoonHero() {
   return (
     <Box
       sx={{
@@ -29,11 +30,11 @@ export default function Hero() {
       />
 
       <Box sx={{zIndex: '2'}}>
-            <img src={logo} alt="bella vita"/>
+            <img className="bellaVitaHeroLogoCS" src={logo} alt="bella vita"/>
 
         <Box mt={4} display="flex" gap={3} justifyContent="center">
-          <RedButton data={{text: 'View Menu', link: '/'}} />
-          <RedButton data={{text: 'Reservations', link: '/'}} />
+          <RedButton data={{text: 'Join The Team', link: '#form'}} />
+          <RedButton data={{text: 'Our Story', link: '/about'}} />
         </Box>
       </Box>
     </Box>

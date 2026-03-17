@@ -1,12 +1,16 @@
 .storySection{
-  background:#0b0b0b;
+  background:black;
   color:white;
   text-align:center;
   padding:80px 20px;
 }
 
 .storyTitle{
-  margin-bottom:40px !important;
+  margin-bottom:20px !important;
+}
+
+.storyTitleSub{
+  margin:40px 0 0px 0 !important;
 }
 
 .storyImage{

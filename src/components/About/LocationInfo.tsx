@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import "../../assets/styles/About/LocationInfo.css";
+import { Link } from "react-router-dom";
 
 export default function LocationInfo(){
 
@@ -12,8 +13,8 @@ export default function LocationInfo(){
       </Typography>
 
       <Typography className="contactText">
-        123.456.7891<br/>
-        info@bellavita.com
+       {/* 123.456.7891<br/>*/}
+        <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavita.com">info@bellavita.com</Link>
       </Typography>
 
       <hr className="divider"/>

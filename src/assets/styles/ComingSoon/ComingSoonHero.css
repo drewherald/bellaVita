@@ -1,0 +1,23 @@
+@media(max-width:1000px){
+
+  .bellaVitaHeroLogoCS{
+    max-width: 80svw;
+  }
+
+}
+
+@media (min-width: 1000px) and (max-width: 2000px) {
+
+   .bellaVitaHeroLogoCS{
+    max-width: 50svw;
+  }
+
+}
+
+  @media(min-width:2000px){
+
+  .bellaVitaHeroLogoCS{
+    max-width: 35svw;
+  }
+
+}

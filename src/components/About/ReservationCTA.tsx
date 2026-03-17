@@ -1,4 +1,4 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import hero from "../../assets/photos/home/privateDining.png";
 import "../../assets/styles/About/ReservationCTA.css";
 import RedButton from "../RedButton";

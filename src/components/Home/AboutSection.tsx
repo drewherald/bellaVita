@@ -1,4 +1,4 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import restaurant from "../../assets/photos/home/heroImage.png";
 import RedButton from "../RedButton";
 

@@ -1,7 +1,8 @@
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { Link } from "react-router-dom";
+import logo from '../../assets/photos/bellaVitaLogo.png'
 
 export default function HomeNavbar() {
   return (
@@ -15,10 +16,13 @@ export default function HomeNavbar() {
         justifyContent: "space-between",
         alignItems: "center",
         color: "white",
-        zIndex: 2
+        zIndex: 2,
+                fontFamily: `"Alegreya", "Helvetica", "Arial", sans-serif`
+
       }}
     >
-      <Box sx={{width: '15svw', padding: '0 20px', display: 'flex', justifyContent: 'flex-start'}}>
+      <Box sx={{width: '15svw', padding: '0 20px', display: 'flex', justifyContent: 'flex-start',}}>
+              <img src={logo} alt="bella vita" style={{maxWidth: '7.5svw',  opacity: '0'}}/>
       </Box>
       <Box display="flex" gap={4}>
         {["Home", "Menu", "About", "Gallery", "Reserve"].map((item) => (

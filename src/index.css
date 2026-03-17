@@ -1,7 +1,7 @@
 body{
     margin: 0;
-    background-color: #d8c9a7;
-    color: #282725;
+    background-color: black;
+    color: white;
     background-image:
         url("./assets/photos/noise.png"),
         linear-gradient(#f4efe8, #f4efe8);

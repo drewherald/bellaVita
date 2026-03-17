@@ -1,4 +1,4 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import dining from "../../assets/photos/home/privateDining.png"
 import RedButton from "../RedButton";
 

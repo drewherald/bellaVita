@@ -10,8 +10,8 @@ export default function AboutHero(){
       sx={{backgroundImage:`url(${hero})`}}
     >
 
-      <Typography variant="h3" className="aboutHeroTitle">
-        About
+      <Typography variant="h1" className="aboutHeroTitle">
+        Our Story
       </Typography>
 
     </Box>

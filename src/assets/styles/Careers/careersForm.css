@@ -1,0 +1,31 @@
+.formSection{
+  background:black;
+  padding:40px 20px 80px;
+  max-width:600px;
+  margin:auto;
+}
+
+.field{
+  margin-bottom:20px !important;
+}
+
+.MuiInputBase-root{
+  background:#710715;
+  color:white !important;
+}
+
+.MuiInputLabel-root{
+  color:white !important;
+}
+
+.applyButton{
+  background:#710715 !important;
+  color:white !important;
+  margin-top:20px !important;
+}
+
+.altApply{
+  text-align:center;
+  margin-top:40px !important;
+  color:white;
+}

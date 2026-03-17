@@ -6,13 +6,13 @@ export default function StorySection(){
   return(
     <Box className="storySection">
 
-      <Typography variant="h4" className="storyTitle">
-        Our Story
+      <Typography variant="h3" className="storyTitle">
+        Our Roots
       </Typography>
 
-      <Box className="storyImage">
+     {/* <Box className="storyImage">
         <Typography>Maybe pic of chef/team here</Typography>
-      </Box>
+      </Box>*/}
 
       <Box className="storyText">
 
@@ -33,11 +33,17 @@ Combing the family history of Italy and growing up in Chicago, the days of liste
  youngster and still today. We wanted to bring some of that rich history and flavor to
  Northern Kentucky.
  </Typography>
+   <Typography variant="h3" className="storyTitleSub">
+        Bella Vita Today
+      </Typography>
 <Typography>
 Which brings us to today and Bella Vita! We wanted to create a place where great food,
 amazing service and a welcoming environment hopefully take you back to the moments
  of great gatherings that you remember in essence “The Good Life” which is Bella Vita!
  </Typography>
+   <Typography variant="h3" className="storyTitleSub">
+        The Kitchen
+      </Typography>
 <Typography>
 Led by Chef Phillip Gentry, Bella Vita’s cuisine will be focused on our food and the
  experience while you’re here! Chef Gentry, “I couldn’t be more excited to lead the

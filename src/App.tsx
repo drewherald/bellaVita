@@ -6,6 +6,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Menu from "./pages/Menu";
 import About from "./pages/About";
 import Gallery from "./pages/Gallery";
+import ComingSoon from "./pages/ComingSoon";
 
 
 const THEME = createTheme({
@@ -25,10 +26,10 @@ function App() {
       <ThemeProvider theme={THEME}>
       <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<Menu />} />
+        <Route path="/" element={<ComingSoon />} />
+       {/* <Route path="/menu" element={<Menu />} />*/}
         <Route path="/about" element={<About />} />
-        <Route path="/gallery" element={<Gallery />} />
+      {/*  <Route path="/gallery" element={<Gallery />} />*/}
 
 
 
