@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 import AboutHero from "../components/About/AboutHero";
-import LocationInfo from "../components/About/LocationInfo";
+//import LocationInfo from "../components/About/LocationInfo";
 import StorySection from "../components/About/StorySection";
 {/*import MapSection from "../components/About/MapSection";
 import ValetSection from "../components/About/ValetSection";
@@ -16,7 +16,7 @@ export default function About() {
 
       <AboutHero />
 
-      <LocationInfo />
+     {/* <LocationInfo />*/}
 
       <StorySection />
 
@@ -25,6 +25,8 @@ export default function About() {
       <ValetSection />
 
       <ReservationCTA />*/}
+
+
 
       <Footer />
     </>

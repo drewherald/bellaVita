@@ -20,6 +20,19 @@ export default function CareersForm(){
   const form = useRef<HTMLFormElement>(null)
 
   const [resume, setResume] = useState<File | null>(null)
+  const [loading, setLoading] = useState<Boolean>(false)
+  const [submitted, setSubmitted] = useState<Boolean>(false)
+
+  const formStartTime = useRef<number>(Date.now())
+
+  const [error, setError] = useState("")
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const phoneRegex = /^[0-9()\-\s+]{7,20}$/
+  const nameRegex = /^[a-zA-Z\s'-]{2,50}$/
+
+  const spamWords = ['viagra', 'casino', 'crypto', 'loan', 'bitcoin']
+
 
 const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   if (e.target.files && e.target.files[0]) {
@@ -49,44 +62,107 @@ const sendToGoogle = async (formData: FormData) => {
 
   const response = await fetch(VITE_GOOGLE_SCRIPT, {
     method: "POST",
-    body: JSON.stringify({
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      position: formData.get("position"),
-      availability: formData.get("availability"),
-      experience: formData.get("experience"),
+body: JSON.stringify({
+  name: formData.get("name"),
+  email: formData.get("email"),
+  phone: formData.get("phone"),
+  position: formData.get("position"),
+  availability: formData.get("availability"),
+  experience: formData.get("experience"),
 
-      file: base64File,
-      fileName: resume?.name,
-      fileType: resume?.type
-    })
+  ...(resume && {
+    file: base64File,
+    fileName: resume.name,
+    fileType: resume.type
   })
+})
+  })
+
+  
 
   const result = await response.json()
   return result.url
 }
 
 
- const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault()
 
   if (!form.current) return
 
+  setError("")
+  setLoading(true)
+
   const formData = new FormData(form.current)
 
-  try {
-    // ✅ STEP 4: Upload to Google Drive
-    const resumeUrl = resume ? await sendToGoogle(formData) : "No resume uploaded"
+  const name = formData.get("name")?.toString().trim() || ""
+  const email = formData.get("email")?.toString().trim() || ""
+  const phone = formData.get("phone")?.toString().trim() || ""
+  const experience = formData.get("experience")?.toString().trim() || ""
+  const honeypot = formData.get("company")
 
-    // ✅ STEP 5: Send Email with link
+  const timeTaken = Date.now() - formStartTime.current
+
+  // 🚨 Honeypot trap
+  if (honeypot) {
+    console.warn("Bot detected via honeypot")
+    setLoading(false)
+    return
+  }
+
+  // 🚨 Time trap (< 3 sec = bot)
+  if (timeTaken < 3000) {
+    setError("Submission too fast. Please try again.")
+    setLoading(false)
+    return
+  }
+
+  // ✅ Validation
+  if (!name || !nameRegex.test(name)) {
+    setError("Please enter a valid name.")
+    setLoading(false)
+    return
+  }
+
+  if (!emailRegex.test(email)) {
+    setError("Please enter a valid email.")
+    setLoading(false)
+    return
+  }
+
+  if (!phoneRegex.test(phone)) {
+    setError("Please enter a valid phone.")
+    setLoading(false)
+    return
+  }
+
+  if (/https?:\/\//i.test(experience)) {
+    setError("Links are not allowed in experience.")
+    setLoading(false)
+    return
+  }
+
+  const lowerMessage = experience.toLowerCase()
+  for (let word of spamWords) {
+    if (lowerMessage.includes(word)) {
+      setError("Spam detected.")
+      setLoading(false)
+      return
+    }
+  }
+
+  try {
+    // ✅ Upload resume to Google Drive
+const resumeUrl = await sendToGoogle(formData)
+
+    // ✅ Send email
     const templateParams = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
+      name,
+      email,
+      phone,
       position: formData.get("position"),
       availability: formData.get("availability"),
-      experience: formData.get("experience"),
+      experience,
       resume_link: resumeUrl
     }
 
@@ -97,14 +173,17 @@ const sendToGoogle = async (formData: FormData) => {
       VITE_EMAILJS_PUBLIC_KEY
     )
 
-    alert("Application submitted!")
     form.current.reset()
     setResume(null)
+    setSubmitted(true)
+    formStartTime.current = Date.now()
 
   } catch (err) {
     console.error(err)
-    alert("Something went wrong")
+    setError("Something went wrong")
   }
+
+  setLoading(false)
 }
 
   return(
@@ -143,8 +222,9 @@ const sendToGoogle = async (formData: FormData) => {
           label="Position applying for"
           fullWidth
           className="field"
+          sx={{backgroundColor: '#710715'}}
         >
-
+          <MenuItem sx={{backgroundColor: '#710715'}} value="Manager">Manager</MenuItem>
           <MenuItem value="Server">Server</MenuItem>
           <MenuItem value="Bartender">Bartender</MenuItem>
           <MenuItem value="Host">Host</MenuItem>
@@ -168,7 +248,7 @@ const sendToGoogle = async (formData: FormData) => {
           className="field"
         />
 
-        <Button
+      { loading === false ? <><Button
   variant="contained"
   component="label"
   className="resumeUpload"
@@ -214,10 +294,19 @@ const sendToGoogle = async (formData: FormData) => {
   }}
         >
           Apply Now
-        </Button>
+        </Button> </>: <></>}
 
       </form>
 
+      {loading === true && !submitted &&        <Typography sx={{color:"white", mt:1}}>Submitting...</Typography>}
+
+      {submitted &&  <Typography sx={{color:"green", mt:1}}>Application Submitted!</Typography>}
+
+{error && (
+  <Typography sx={{ color: "red", mt: 1 }}>
+    {error}
+  </Typography>
+)}
       <Typography className="altApply">
         Prefer to apply directly?<br/>
         Email:         <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavita.com">info@bellavita.com</Link>

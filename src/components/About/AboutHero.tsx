@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import hero from "../../assets/photos/about/aboutHero.png";
+import hero from "../../assets/photos/about/aboutHero.jpg";
 import "../../assets/styles/About/AboutHero.css";
 
 export default function AboutHero(){

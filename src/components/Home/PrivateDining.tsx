@@ -5,8 +5,11 @@ import RedButton from "../RedButton";
 export default function PrivateDining() {
   return (
     <>
-        <hr style={{color: 'white', width: '1px', margin: '0'}}/>
-
+<hr style={{
+  border: 'none',
+  borderTop: '1px solid white',
+  margin: 0
+}} />
     <Box sx={{ position: "relative" }}>
   <Box
     sx={{
@@ -42,8 +45,11 @@ export default function PrivateDining() {
     </Box>
   </Box>
 </Box>
-    <hr style={{color: 'white', width: '1px', margin: '0'}}/>
-</>
+<hr style={{
+  border: 'none',
+  borderTop: '1px solid white',
+  margin: 0
+}} /></>
   
   );
 }

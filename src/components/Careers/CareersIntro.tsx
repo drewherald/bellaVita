@@ -7,23 +7,31 @@ export default function CareersIntro(){
 
     <Box className="careersIntro">
 
-      <Typography variant="h2" className="title">
+      <Typography variant="h2" >
         Work With Us
+      </Typography>
+       <Typography variant="h5" className="title" sx={{marginTop: '0'}}>
+       <i> {`Become Part of our Famiglia`}</i>
       </Typography>
 
       <Typography className="paragraph">
         Bella Vita is a new Italian restaurant focused on great food,
-        atmosphere, and guest experience.
+        an amazing atmosphere, and exceptional service!
       </Typography>
 
       <Typography className="paragraph">
-        We're building a strong team and looking for people who are
-        reliable, positive, and take pride in what they do.
+       If you want to work in an amazing environment where teamwork and leadership take precedence, then this job is for you! 
+
+We are looking for individuals who are passionate about the food industry and take pride in their work and can build relationships.
+
+Our goal is to build a strong team that is reliable, cares about service and can work in a fast-paced team environment.
+
+If this is you and you have experience, then bring your smile and personality to our upcoming job fair.
       </Typography>
 
       <Typography className="hiring">
         <b>Now Hiring All Positions</b><br/>
-        Servers · Bartenders · Hosts · Kitchen Staff
+         Managers · Servers · Bartenders · Hosts · Kitchen Staff
       </Typography>
 
       <Typography variant="h5" className="joinTitle">
@@ -31,7 +39,7 @@ export default function CareersIntro(){
       </Typography>
 
       <Typography className="subtitle">
-        Fill out the form and we'll be in touch.
+        Grazie.
       </Typography>
 
     </Box>

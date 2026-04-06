@@ -1,10 +1,16 @@
-import { Box, IconButton } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
+import { Box, /*IconButton*/ } from "@mui/material";
+/*import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";*/
 import logo from '../assets/photos/bellaVitaLogo.png'
 
 export default function Footer() {
   return (
+    <>
+<hr style={{
+  border: 'none',
+  borderTop: '1px solid white',
+  margin: 0
+}} />
     <Box
       sx={{
         bgcolor: "black",
@@ -24,5 +30,6 @@ export default function Footer() {
         </IconButton>*/}
       </Box>
     </Box>
+    </>
   );
 }

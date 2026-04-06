@@ -1,6 +1,6 @@
-import { Box, IconButton } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
+import { Box, /*IconButton*/ } from "@mui/material";
+/*import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";*/
 import { Link } from "react-router-dom";
 import logo from '../../assets/photos/bellaVitaLogo.png'
 

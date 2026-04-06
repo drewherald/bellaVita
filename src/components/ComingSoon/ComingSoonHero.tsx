@@ -1,5 +1,5 @@
-import { Box } from "@mui/material";
-import hero from "../../assets/photos/home/heroImage.png";
+import { Box, Typography } from "@mui/material";
+import hero from "../../assets/photos/home/heroImg.jpg";
 import logo from '../../assets/photos/bellaVitaLogo.png'
 import RedButton from "../RedButton";
 import '../../assets/styles/ComingSoon/ComingSoonHero.css'
@@ -31,7 +31,7 @@ export default function ComingSoonHero() {
 
       <Box sx={{zIndex: '2'}}>
             <img className="bellaVitaHeroLogoCS" src={logo} alt="bella vita"/>
-
+            <Typography variant="h3" sx={{paddingTop: '3svh'}}>Now Hiring for Opening</Typography>
         <Box mt={4} display="flex" gap={3} justifyContent="center">
           <RedButton data={{text: 'Join The Team', link: '#form'}} />
           <RedButton data={{text: 'Our Story', link: '/about'}} />
