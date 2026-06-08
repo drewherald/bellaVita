@@ -309,7 +309,7 @@ const resumeUrl = await sendToGoogle(formData)
 )}
       <Typography className="altApply">
         Prefer to apply directly?<br/>
-        Email:         <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavita.com">info@bellavita.com</Link>
+        Email:         <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavitaky.com">info@bellavitaky.com</Link>
       </Typography>
 
     </Box>
