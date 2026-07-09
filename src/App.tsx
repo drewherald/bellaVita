@@ -7,6 +7,7 @@ import Menu from "./pages/Menu";
 import Gallery from "./pages/Gallery";*/
 import About from "./pages/About";
 import ComingSoon from "./pages/ComingSoon";
+import Menu from "./pages/Menu";
 
 
 const THEME = createTheme({
@@ -27,7 +28,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<ComingSoon />} />
-       {/* <Route path="/menu" element={<Menu />} />*/}
+       <Route path="/menu" element={<Menu />} />
         <Route path="/about" element={<About />} />
       {/*  <Route path="/gallery" element={<Gallery />} />*/}
 

@@ -8,7 +8,7 @@ export default function MenuHero() {
       className="menuHero"
       sx={{ backgroundImage: `url(${hero})`}}
     >
-      <Typography variant="h3" className="heroTitle">
+      <Typography variant="h3" className="heroTitle menuHeroTitle">
         Food & Drink
       </Typography>
     </Box>

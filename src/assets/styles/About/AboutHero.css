@@ -26,4 +26,8 @@
     height:50svh;
   }
 
+  .aboutHeroTitle{
+    font-size: 4rem !important;
+  }
+
 }

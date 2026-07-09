@@ -17,14 +17,13 @@ export default function Navbar() {
         color: "white",
         zIndex: 2,
         backgroundColor: 'black',
-        fontFamily: `"Alegreya", "Helvetica", "Arial", sans-serif`
       }}
     >
       <Link to="/" style={{width: '15svw', padding: '0 20px', display: 'flex', justifyContent: 'flex-start'}}>
         <img src={logo} alt="bella vita" style={{maxWidth: '7.5svw'}}/>
       </Link>
       <Box display="flex" gap={4}>
-        {["Home", /*"Menu",*/"About", /*"Gallery", "Reserve"*/].map((item) => (
+        {["Home", "Menu", "About", /*"Gallery", "Reserve"*/].map((item) => (
            <Link to={item == "Home" ? '/' : `/${item}`} key={item} style={{ cursor: "pointer", textDecoration: 'none', color: 'white' }}>
             {item}
           </Link>

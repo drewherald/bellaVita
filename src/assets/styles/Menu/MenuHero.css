@@ -23,5 +23,10 @@
 @media (max-width:1000px){
   .menuHero{
     height:50svh;
+    background-position: calc(50% + 10svw) center !important;
+  }
+
+  .menuHeroTitle{
+    font-size: 4rem !important;
   }
 }
