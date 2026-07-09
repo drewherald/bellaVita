@@ -8,7 +8,7 @@ export default function LocationInfo(){
     <Box className="locationSection">
 
       <Typography className="addressTitle">
-        7863 Old Union Road,<br/>
+        9914 Old Union Road,<br/>
         Union, KY 41091
       </Typography>
 
@@ -22,34 +22,34 @@ export default function LocationInfo(){
       <Box className="hoursGrid">
 
         <Box>
-          <Typography className="hoursTitle">Monday – Thursday</Typography>
-          <Typography>4pm-10pm</Typography>
+          <Typography className="hoursTitle">Wednesday – Thursday</Typography>
+          <Typography>4 pm - 9 pm, Bar Open to 10 pm</Typography>
         </Box>
 
         <Box>
-          <Typography className="hoursTitle">Saturday</Typography>
-          <Typography>10am-11pm</Typography>
+           <Typography className="hoursTitle">Friday-Saturday</Typography>
+          <Typography>4 pm - 10 pm, Kitchen & Bar</Typography>
         </Box>
 
         <Box>
-          <Typography className="hoursTitle">Friday</Typography>
-          <Typography>4pm-10pm</Typography>
+          <Typography className="hoursTitle">Sunday Brunch</Typography>
+          <Typography>11 am - 3 pm</Typography>
         </Box>
 
         <Box>
-          <Typography className="hoursTitle">Sunday</Typography>
-          <Typography>10am-10pm</Typography>
+          <Typography className="hoursTitle">Sunday Dinner</Typography>
+          <Typography>4 pm - 9 pm</Typography>
         </Box>
 
       </Box>
 
-      <Typography className="hoursNote">
+    {/*  <Typography className="hoursNote">
         Brunch menu is served on weekends until 2pm.
       </Typography>
 
       <Typography className="hoursNote">
         We welcome walk-ins to join us at the bar where we serve the full menu.
-      </Typography>
+      </Typography>*/}
 
     </Box>
   )

@@ -1,5 +1,5 @@
 import { Box, /*Typography*/ } from "@mui/material";
-import hero from "../../assets/photos/home/heroImage.jpg";
+import hero from "../../assets/photos/home/heroImg.jpg"
 import logo from '../../assets/photos/bellaVitaLogo.png'
 import RedButton from "../RedButton";
 

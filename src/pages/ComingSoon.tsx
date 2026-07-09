@@ -1,8 +1,10 @@
 import Footer from "../components/Footer";
 import ComingSoonHero from "../components/ComingSoon/ComingSoonHero";
 import ComingSoonNavbar from "../components/ComingSoon/ComingSoonNavbar";
-import CareersIntro from "../components/Careers/CareersIntro";
-import CareersForm from "../components/Careers/CareersForm";
+import ChefFeature from "../components/Home/ChefFeature";
+{/*import GalleryRow from "../components/Home/GalleryRow";*/}
+import AboutSection from "../components/Home/AboutSection";
+
 import { Box } from "@mui/material";
 
 export default function ComingSoon() {
@@ -10,11 +12,9 @@ export default function ComingSoon() {
     <Box sx={{backgroundColor: 'black'}}>
       <ComingSoonNavbar />
       <ComingSoonHero />
-
-      <CareersIntro />
-
-      <CareersForm />
-
+      <ChefFeature />
+{/*      <GalleryRow />
+*/}      <AboutSection />
       <Footer />
     </Box>
   );

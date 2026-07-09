@@ -3,7 +3,6 @@ import './App.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ScrollToTop from "./components/ScrollToTop";
 /*import Home from "./pages/Home";
-import Menu from "./pages/Menu";
 import Gallery from "./pages/Gallery";*/
 import About from "./pages/About";
 import ComingSoon from "./pages/ComingSoon";

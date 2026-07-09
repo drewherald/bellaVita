@@ -1,36 +1,24 @@
 import { Box, Typography } from "@mui/material";
 import chef from "../../assets/photos/home/steakPlate.png";
 import RedButton from "../RedButton";
+import "../../assets/styles/Home/ChefFeature.css";
 
 export default function ChefFeature() {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        position: 'relative'
-      }}
-    >
-      <Box p={8} sx={{  
-        position: 'absolute',
-        color: 'white',
-        width: '30svw',
-        top: '30svh',
-        left: '5svw'}} 
-        display="flex" flexDirection="column" justifyContent="center">
-        <Typography mb={3} sx={{fontSize: '1.5rem'}}>
+    <Box className="chef-feature">
+      <Box className="chef-feature-content">
+        <Typography className="chef-feature-text">
           Handcrafted Italian dishes, rich flavors, and timeless recipes —
           made to be shared, savored, and remembered.
         </Typography>
 
-       
-        <RedButton data={{text: 'Gallery', link: '/'}} />
-
+        <span className="menuButton"><RedButton data={{ text: "Menu", link: "/menu" }} /></span>
       </Box>
 
       <Box
         component="img"
         src={chef}
-        sx={{ width: "100%", objectFit: "cover" }}
+        className="chef-feature-image"
       />
     </Box>
   );

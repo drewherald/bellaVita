@@ -31,9 +31,10 @@ export default function ComingSoonHero() {
 
       <Box sx={{zIndex: '2'}}>
             <img className="bellaVitaHeroLogoCS" src={logo} alt="bella vita"/>
-            <Typography variant="h3" sx={{paddingTop: '3svh'}}>Now Hiring for Opening</Typography>
+            <Typography variant="h5" sx={{paddingTop: '3svh'}}> 9914 Old Union Road,<br/>
+        Union, KY 41091</Typography>
         <Box mt={4} display="flex" gap={3} justifyContent="center">
-          <RedButton data={{text: 'Join The Team', link: '#form'}} />
+          <RedButton data={{text: 'Menu', link: '/menu'}} />
           <RedButton data={{text: 'Our Story', link: '/about'}} />
         </Box>
       </Box>
