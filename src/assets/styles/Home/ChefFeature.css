@@ -63,7 +63,7 @@
 }
 
  .menuButton{
-     position: absolute;
+display: none;
     top: 17.5svh;
     z-index: 2;
     padding-left: 5svw;

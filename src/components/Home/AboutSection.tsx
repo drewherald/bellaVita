@@ -17,7 +17,6 @@ export default function AboutSection() {
           Nestled in Union, Kentucky, Bella Vita offers an inviting place to
           slow down and enjoy Italian dishes inspired by tradition.
         </Typography>
-
         <span className="aboutButtonAbtSec"><RedButton data={{ text: "About", link: "/about" }} /></span>
       </Box>
     </Box>
