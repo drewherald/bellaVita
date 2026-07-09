@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import "../../assets/styles/Menu/MenuCards.css";
 import Menu1 from '../../assets/photos/menu/_Bella Vita Menu Designs-1.jpg'
 import Menu2 from '../../assets/photos/menu/_Bella Vita Menu Designs-2.jpg'
