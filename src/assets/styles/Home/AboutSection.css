@@ -37,6 +37,11 @@
     width: 70svw !important;
     }
 
+    .saladPic{
+position: absolute;
+height: 40svh;
+}
+
 }
 
 @media(min-width:1000px){
@@ -48,5 +53,11 @@
     .about-section-content {
   z-index: 2;
   max-width: 30svw;
+}
+
+.saladPic{
+ max-width: 50svw;
+ border-radius: 20px;
+ padding-right: 10svw;
 }
 }
