@@ -1,7 +1,5 @@
 .menuCardsContainer{
-  display:flex;
-  gap:30px;
-  justify-content:center;
+ 
   background: black;
 }
 
@@ -19,6 +17,9 @@
     padding: 50px 10px;
     flex-direction:column;
     align-items:center;
+     display:flex;
+  gap:30px;
+  justify-content:center;
   }
 
   .menuCard{
@@ -36,6 +37,14 @@
 
     .menuCardsContainer{
       padding:60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+        align-items: start;
+grid-template-rows: min-content;
+gap: 30px;
+
+
   }
 
 }
