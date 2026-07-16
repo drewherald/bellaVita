@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import "../../assets/styles/About/StorySection.css";
-import chef from '../../assets/photos/about/chef.jpg'
+import gm from '../../assets/photos/about/gm.jpg'
 export default function StorySection(){
 
   return(
@@ -58,7 +58,58 @@ through all my experiences, one constant has rung through; my love for really go
 food, and its ability to bring people together. </i>The way I say it is: <i>“I make the food you
 want to eat,” so come join in, we saved you a seat!</i></Typography>
 
-<img src={chef} className="chefPic"></img>
+{/*<img src={chef} className="chefPic"></img>*/}
+</Box>
+
+
+<Typography variant="h3" className="storyTitleSub">
+        A Word From Our General Manager
+      </Typography>
+ <Box className='kitchenWrapper'>
+   
+<Typography className="kitchenText">
+I’m Anthony Cooper, General Manager of Bella Vita, and
+I have dedicated my life to the restaurant industry. For
+over three decades, I’ve had the privilege of working in
+nearly every position imaginable—from the kitchen to
+behind the bar, from serving tables and training teams to
+managing entire restaurant operations. Every role has
+shaped my understanding of what makes a restaurant truly
+special: exceptional food, genuine hospitality, a
+passionate team, and an experience that leaves guests
+wanting to return.
+<br/><br/>
+
+Bella Vita is far more than a restaurant to me—it’s the
+realization of a dream built on years of experience,
+passion, and an unwavering love for hospitality. From the
+very beginning, I’ve had the privilege of helping bring
+this vision to life, contributing to everything from our
+service philosophy and guest experience to our wine
+selection, cocktail program, and the countless details that
+make Bella Vita uniquely ours.
+<br/><br/>
+
+I believe the best restaurants aren’t remembered simply
+for the meals they serve, but for the way they make
+people feel. My mission is to create an environment
+where every guest feels genuinely welcomed, personally
+cared for, and leaves feeling a little better than when they
+arrived. Whether you’re celebrating a milestone, enjoying
+a quiet dinner, or gathering with family and friends, I
+hope Bella Vita becomes a place you think of as your
+own.
+<br/><br/>
+
+
+It is an honor to welcome you into our home, and I look
+forward to sharing this journey with you.
+Welcome to Bella Vita.
+Eat Well. Drink Well. Celebrate.
+Mangia Bene. Bevi Bene. Festeggia.
+</Typography>
+
+<img src={gm} className="chefPic"></img>
 </Box>
       </Box>
 
