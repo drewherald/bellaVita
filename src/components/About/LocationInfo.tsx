@@ -13,8 +13,12 @@ export default function LocationInfo(){
       </Typography>
 
       <Typography className="contactText">
-       {/* 123.456.7891<br/>*/}
-        <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavita.com">info@bellavita.com</Link>
+        <a href="tel:+18595340499" style={
+   { textDecoration: 'none',
+    color: 'inherit',
+    cursor: 'pointer'}
+  }>859-534-0499</a>  <br/>
+        <Link style={{color: 'white', textDecoration: 'none'}} to="mailto:info@bellavitaky.com">info@bellavitaky.com</Link>
       </Typography>
 
       <hr className="divider"/>
