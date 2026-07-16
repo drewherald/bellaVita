@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 //import restaurant from "../../assets/photos/home/heroImg.jpg";
 import RedButton from "../RedButton";
 import "../../assets/styles/Home/AboutSection.css"
-import salad from "../../assets/photos/menu/foodAD.png";
+import bar from "../../assets/photos/about/aboutHero.jpg";
 
 export default function AboutSection() {
   return (
@@ -10,7 +10,7 @@ export default function AboutSection() {
       className="about-section"
 /*      sx={{ backgroundImage: `url(${restaurant})` }}*/>
       {/* overlay */}
-      <img src={salad} className="saladPic"/>
+      <img src={bar} className="saladPic"/>
       <Box className="about-section-overlay" />
 
       <Box className="about-section-content">

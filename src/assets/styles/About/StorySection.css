@@ -30,3 +30,32 @@
   flex-direction:column;
   gap:25px;
 }
+
+.kitchenWrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chefPic{
+    border-radius: 2rem;
+  }
+
+@media(max-width:1000px){
+  .kitchenWrapper{
+    flex-direction: column;
+  }
+
+  .chefPic{
+    width: 80svw;
+    margin-top: 5svh;
+  }
+}
+
+@media(min-width:1000px){
+  .chefPic{
+    width: 15svw;
+    margin-left: 10svw;
+    border-radius: 2rem;
+  }
+}

@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import "../../assets/styles/About/StorySection.css";
-
+import chef from '../../assets/photos/about/chef.jpg'
 export default function StorySection(){
 
   return(
@@ -39,10 +39,13 @@ amazing service and a welcoming environment are at the forefront of your experie
 Our goal is to take you back to the moments of great gatherings that you remember in
 essence……..“The Good Life” which is…… <i>Bella Vita</i>!
  </Typography>
-   <Typography variant="h3" className="storyTitleSub">
+
+<Typography variant="h3" className="storyTitleSub">
         The Kitchen
       </Typography>
-<Typography>
+ <Box className='kitchenWrapper'>
+   
+<Typography className="kitchenText">
 Led by Chef Phillip Gentry, Bella Vita’s cuisine will be focused on authentic Italian
 cuisine as well as a few tantalizing enhancements. Chef Gentry: <i>“I couldn’t be more
 excited to lead the culinary team at Bella Vita.! Food has been my life for as long as I
@@ -54,6 +57,9 @@ many kitchens, wearing many different hats, and taking many responsibilities. Bu
 through all my experiences, one constant has rung through; my love for really good
 food, and its ability to bring people together. </i>The way I say it is: <i>“I make the food you
 want to eat,” so come join in, we saved you a seat!</i></Typography>
+
+<img src={chef} className="chefPic"></img>
+</Box>
       </Box>
 
     </Box>
