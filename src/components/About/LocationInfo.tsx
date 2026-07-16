@@ -19,6 +19,11 @@ export default function LocationInfo(){
 
       <hr className="divider"/>
 
+      <Typography sx={{fontWeight: '500'}} variant="h5">
+        Hours of Operation
+      </Typography>
+      <br/>
+
       <Box className="hoursGrid">
 
         <Box>
@@ -33,7 +38,7 @@ export default function LocationInfo(){
 
         <Box>
           <Typography className="hoursTitle">Sunday Brunch</Typography>
-          <Typography>11 am - 3 pm</Typography>
+          <Typography>Coming Soon!</Typography>
         </Box>
 
         <Box>
