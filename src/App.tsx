@@ -7,6 +7,7 @@ import Gallery from "./pages/Gallery";*/
 import About from "./pages/About";
 import ComingSoon from "./pages/ComingSoon";
 import Menu from "./pages/Menu";
+import NowHiring from "./pages/NowHiring";
 
 
 const THEME = createTheme({
@@ -29,6 +30,8 @@ function App() {
         <Route path="/" element={<ComingSoon />} />
        <Route path="/menu" element={<Menu />} />
         <Route path="/about" element={<About />} />
+        <Route path="/apply" element={<NowHiring />} />
+
       {/*  <Route path="/gallery" element={<Gallery />} />*/}
 
 

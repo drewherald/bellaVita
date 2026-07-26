@@ -34,8 +34,8 @@ export default function ComingSoonHero() {
             <Typography variant="h5" sx={{paddingTop: '3svh'}}> 9914 Old Union Road,<br/>
         Union, KY 41091</Typography>
         <Box mt={4} display="flex" gap={3} justifyContent="center">
-          <RedButton data={{text: 'Menu', link: '/menu'}} />
-          <RedButton data={{text: 'Our Story', link: '/about'}} />
+          <RedButton data={{text: 'Our Menu', link: '/menu'}} />
+          <RedButton data={{text: 'Apply Here', link: '/apply'}} />
         </Box>
       </Box>
     </Box>

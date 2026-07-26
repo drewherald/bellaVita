@@ -1,15 +1,26 @@
 import { Box, Typography } from "@mui/material"
 import "../../assets/styles/Careers/careersIntro.css"
+import hero from '../../assets/photos/home/stockinside.jpg'
+import "../../assets/styles/About/AboutHero.css";
 
 export default function CareersIntro(){
 
   return(
 
-    <Box className="careersIntro">
 
-      <Typography variant="h2" >
-        Work With Us
-      </Typography>
+
+    <Box className="careersIntro">
+    <Box
+          className="aboutHero"
+          sx={{backgroundImage:`url(${hero})`, marginBottom: '50px'}}
+        >
+
+          <Typography variant="h1" className="aboutHeroTitle">
+            Work With Us
+          </Typography>
+
+    </Box>
+     
        <Typography variant="h5" className="title" sx={{marginTop: '0'}}>
        <i> {`Become Part of our Famiglia`}</i>
       </Typography>

@@ -23,7 +23,7 @@ export default function ComingSoonNavbar() {
               <img src={logo} alt="bella vita" style={{maxWidth: '7.5svw',  opacity: '0'}}/>
       </Box>
       <Box display="flex" gap={4}>
-        {["Home", "Menu", "About"].map((item) => (
+        {["Home", "Menu", "About", "Apply"].map((item) => (
            <Link to={item == "Home" ? '/' : `/${item}`} key={item} style={{ cursor: "pointer", textDecoration: 'none', color: 'white' }}>
             {item}
           </Link>
