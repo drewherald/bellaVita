@@ -34,6 +34,7 @@
 .kitchenWrapper{
   display: flex;
   justify-content: center;
+  padding: 3svh 0;
 }
 
 .chefPic{
@@ -55,6 +56,16 @@
   .kitchenWrapper :last-child{
     order: -1;
   }
+
+  .chefPicInvert{
+    display: none;
+  }
+
+  .chefPicMobile{
+     width: 80svw;
+    margin: 0 0 2.5svh 0;
+        border-radius: 2rem;
+  }
 }
 
 @media(min-width:1000px){
@@ -64,8 +75,20 @@
     border-radius: 2rem;
   }
 
+  .chefPicInvert{
+    width: 25svw;
+    margin-right: 2.5svw;
+    border-radius: 2rem;
+        border-radius: 2rem;
+
+  }
+
    .kitchenWrapper{
       align-items: start;
 
+  }
+
+  .chefPicMobile{
+    display: none;
   }
 }
