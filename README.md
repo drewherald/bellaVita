@@ -1,4 +1,22 @@
-# React + TypeScript + Vite
+# Bella Vita
+
+## Events and Stripe
+
+The `/events` page reads active, one-time Stripe Prices from `/api/events` and sends guests to a Stripe-hosted Checkout page through `/api/checkout`. Both endpoints run server-side so the secret key is never exposed to the browser.
+
+To publish an event in Stripe:
+
+1. Create an active Product and a one-time Price.
+2. Add Product metadata `type=event`.
+3. Add `event_date` as an ISO 8601 value (for example `2026-10-24T18:30:00-04:00`).
+4. Optionally add `location`, `age`, and `capacity`; the product description and first product image also appear on the event card.
+5. Add more one-time Prices to the same Product for ticket tiers. A Price's `ticket_name` and `ticket_description` metadata control its display copy (its nickname is used as a fallback name).
+
+Copy `.env.example` to `.env.local`, add a Stripe test secret, and run the app with `npm run dev`. The Vite development server exposes the same Stripe API routes locally; Vercel runs them as serverless functions after deployment.
+
+Set `STRIPE_SECRET_KEY` and `SITE_URL` in the deployment environment. Use Stripe test mode until the entire checkout flow has been verified.
+
+## Frontend
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

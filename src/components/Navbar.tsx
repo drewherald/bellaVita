@@ -23,8 +23,8 @@ export default function Navbar() {
         <img src={logo} alt="bella vita" style={{maxWidth: '7.5svw'}}/>
       </Link>
       <Box display="flex" gap={4}>
-        {["Home", "Menu", "About", "Apply"/*"Gallery", "Reserve"*/].map((item) => (
-           <Link to={item == "Home" ? '/' : `/${item}`} key={item} style={{ cursor: "pointer", textDecoration: 'none', color: 'white' }}>
+        {["Home", "Menu", "Events", "About", "Apply"/*"Gallery", "Reserve"*/].map((item) => (
+           <Link to={item === "Home" ? '/' : `/${item.toLowerCase()}`} key={item} style={{ cursor: "pointer", textDecoration: 'none', color: 'white' }}>
             {item}
           </Link>
         ))}
