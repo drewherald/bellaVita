@@ -1,27 +1,21 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { getStripe } from "./_stripe.js";
+import { settleReservation, validRequestId } from "./_inventory.js";
+import { json } from "./_http.js";
 
 export default async function handler(request: IncomingMessage, response: ServerResponse) {
-  response.setHeader("Content-Type", "application/json");
   if (request.method !== "GET") {
-    response.writeHead(405, { Allow: "GET" }).end(JSON.stringify({ error: "Method not allowed" }));
-    return;
+    response.setHeader("Allow", "GET");
+    return json(response, 405, { confirmed: false });
   }
-
   try {
-    const requestUrl = new URL(request.url ?? "", `https://${request.headers.host}`);
-    const sessionId = requestUrl.searchParams.get("session_id");
-    if (!sessionId?.startsWith("cs_")) {
-      response.statusCode = 400;
-      response.end(JSON.stringify({ confirmed: false }));
-      return;
-    }
-
-    const session = await getStripe().checkout.sessions.retrieve(sessionId);
-    response.end(JSON.stringify({ confirmed: session.payment_status === "paid" }));
-  } catch (error) {
-    console.error("Unable to verify Stripe Checkout Session", error);
-    response.statusCode = 400;
-    response.end(JSON.stringify({ confirmed: false }));
+    const sessionId = new URL(request.url ?? "", "http://localhost").searchParams.get("session_id");
+    if (!sessionId || !/^cs_[a-zA-Z0-9_]+$/.test(sessionId)) return json(response, 400, { confirmed: false });
+    const session = await getStripe().checkout.sessions.retrieve(sessionId, { expand: ["line_items"] });
+    if (!validRequestId(session.metadata?.reservation_id)) return json(response, 400, { confirmed: false });
+    await settleReservation(session);
+    json(response, 200, { confirmed: session.status === "complete" && ["paid", "no_payment_required"].includes(session.payment_status) });
+  } catch {
+    json(response, 400, { confirmed: false });
   }
 }

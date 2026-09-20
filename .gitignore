@@ -2,4 +2,10 @@
 node_modules/
 .next/
 .env
+.env.*
+!.env.example
 dist/
+dist-server/
+dist-tests/
+.test-output/
+.local-inventory/

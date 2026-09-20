@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import "../assets/styles/Events/Events.css";
@@ -11,6 +11,8 @@ type Ticket = {
   description: string | null;
   price: number;
   currency: string;
+  configured: boolean;
+  remaining: number;
 };
 
 type EventItem = {
@@ -45,56 +47,123 @@ const formatDate = (date: string | null) => {
 export default function Events() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inventoryReady, setInventoryReady] = useState(true);
+  const [eventsError, setEventsError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const checkoutRequests = useRef(new Map<string, string>());
   const query = new URLSearchParams(window.location.search);
   const checkoutStatus = query.get("checkout");
   const checkoutSessionId = query.get("session_id");
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<"checking" | "confirmed" | "unverified">("checking");
+
+  const refreshEvents = useCallback((signal?: AbortSignal) =>
+    fetch("/api/events", { signal, cache: "no-store" })
+      .then((response) => {
+        if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
+          throw new Error("Events are unavailable right now. Please try again shortly.");
+        }
+        return response.json() as Promise<{ events: EventItem[]; inventoryReady: boolean }>;
+      })
+      .then(({ events: eventData, inventoryReady: ready }) => {
+        setEvents(eventData);
+        setInventoryReady(ready);
+        setEventsError(null);
+      }), []);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/events", { signal: controller.signal })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Events are unavailable right now.");
-        if (!response.headers.get("content-type")?.includes("application/json")) {
-          throw new Error("The events API is not running. Restart the development server and try again.");
-        }
-        return response.json() as Promise<{ events: EventItem[] }>;
+    void refreshEvents(controller.signal)
+      .catch(() => {
+        if (!controller.signal.aborted) setEventsError("Events are unavailable right now. Please try again shortly.");
       })
-      .then(({ events: eventData }) => setEvents(eventData))
-      .catch((requestError: unknown) => {
-        if (requestError instanceof Error && requestError.name !== "AbortError") {
-          setError(requestError.message);
-        }
-      })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
-    return () => controller.abort();
-  }, []);
+    const refreshAvailability = () => {
+      if (document.visibilityState === "visible") {
+        void refreshEvents(controller.signal).catch(() => {});
+      }
+    };
+    const interval = window.setInterval(refreshAvailability, 30_000);
+    window.addEventListener("focus", refreshAvailability);
+    document.addEventListener("visibilitychange", refreshAvailability);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshAvailability);
+      document.removeEventListener("visibilitychange", refreshAvailability);
+    };
+  }, [refreshEvents]);
 
   useEffect(() => {
     if (checkoutStatus !== "success" || !checkoutSessionId) return;
-    fetch(`/api/checkout-session?session_id=${encodeURIComponent(checkoutSessionId)}`)
-      .then((response) => response.json() as Promise<{ confirmed: boolean }>)
-      .then(({ confirmed }) => setPaymentConfirmed(confirmed))
-      .catch(() => setPaymentConfirmed(false));
-  }, [checkoutStatus, checkoutSessionId]);
+    const controller = new AbortController();
+    let timer: number | undefined;
+    let attempts = 0;
 
-  const buyTickets = async (priceId: string) => {
+    const checkPayment = async () => {
+      attempts += 1;
+      try {
+        const response = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(checkoutSessionId)}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (response.ok) {
+          const { confirmed } = await response.json() as { confirmed: boolean };
+          if (confirmed) {
+            setPaymentStatus("confirmed");
+            void refreshEvents(controller.signal).catch(() => {});
+            return;
+          }
+        }
+      } catch {
+        if (controller.signal.aborted) return;
+      }
+      if (controller.signal.aborted) return;
+      if (attempts < 15) timer = window.setTimeout(() => void checkPayment(), 2_000);
+      else setPaymentStatus("unverified");
+    };
+
+    void checkPayment();
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [checkoutStatus, checkoutSessionId, refreshEvents]);
+
+  const buyTickets = async (priceId: string, quantity: number) => {
     setCheckingOut(priceId);
     setError(null);
     try {
+      const requestKey = `${priceId}:${quantity}`;
+      const requestId = checkoutRequests.current.get(requestKey) ?? crypto.randomUUID();
+      checkoutRequests.current.set(requestKey, requestId);
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
+        body: JSON.stringify({ priceId, quantity, requestId }),
       });
-      const data = (await response.json()) as { url?: string; error?: string };
-      if (!response.ok || !data.url) throw new Error(data.error ?? "Checkout could not be started.");
+      if (response.status === 400 || response.status === 409) {
+        checkoutRequests.current.delete(requestKey);
+      }
+      if (response.status === 409) {
+        void refreshEvents().catch(() => {});
+      }
+      const data = await response.json().catch(() => ({})) as { url?: string; error?: string };
+      if (!response.ok || !data.url) {
+        setError(response.status === 409
+          ? "Ticket availability has changed. Please check the remaining tickets and try again."
+          : "Checkout could not be started. Please try again shortly.");
+        setCheckingOut(null);
+        return;
+      }
       window.location.assign(data.url);
-    } catch (checkoutError) {
-      setError(checkoutError instanceof Error ? checkoutError.message : "Checkout could not be started.");
+    } catch {
+      setError("We couldn’t connect to checkout. Please check your connection and try again.");
       setCheckingOut(null);
     }
   };
@@ -107,19 +176,28 @@ export default function Events() {
           <h1>Events</h1>
         </section>
 
-        {checkoutStatus === "success" && paymentConfirmed && (
-          <div className="events-notice events-notice--success" role="status">
-            Your payment is confirmed. Stripe will send your receipt to the email used at checkout.
+        {!loading && !inventoryReady && (
+          <div className="events-notice" role="status">Ticket sales are temporarily unavailable. Please check back shortly.</div>
+        )}
+
+        {checkoutStatus === "success" && (
+          <div className={`events-notice${paymentStatus === "confirmed" ? " events-notice--success" : ""}`} role="status">
+            {paymentStatus === "confirmed"
+              ? "Your payment is confirmed. Stripe will send your receipt to the email used at checkout."
+              : paymentStatus === "checking" && checkoutSessionId
+                ? "We’re checking your payment. This may take a moment…"
+                : "We couldn’t confirm your payment yet. Please check your email for a receipt or contact Bella Vita before purchasing again."}
           </div>
         )}
         {checkoutStatus === "cancelled" && (
-          <div className="events-notice" role="status">Checkout was cancelled. Your spot has not been reserved.</div>
+          <div className="events-notice" role="status">Checkout wasn’t completed. Any temporary ticket hold will be released when checkout expires.</div>
         )}
+        {eventsError && <div className="events-notice events-notice--error" role="alert">{eventsError}</div>}
         {error && <div className="events-notice events-notice--error" role="alert">{error}</div>}
 
         <section className="events-list" aria-busy={loading}>
           {loading && <p className="events-state">Preparing the calendar…</p>}
-          {!loading && !error && events.length === 0 && (
+          {!loading && !eventsError && events.length === 0 && (
             <div className="events-state">
               <h2>More gatherings are coming soon.</h2>
               <p>Check back for our next dinner, tasting, or special celebration.</p>
@@ -144,16 +222,44 @@ export default function Events() {
               </div>
               <div className="ticket-panel">
                 <div className="ticket-panel__tiers">
-                  {event.tickets.map((ticket) => (
-                    <div className="ticket-tier" key={ticket.priceId}>
-                      <h3>{ticket.name}</h3>
-                      <strong>{formatPrice(ticket.price, ticket.currency)}</strong>
-                      {ticket.description && <p>{ticket.description}</p>}
-                      <button onClick={() => buyTickets(ticket.priceId)} disabled={checkingOut !== null}>
-                        {checkingOut === ticket.priceId ? "Opening checkout…" : "Buy tickets"}
-                      </button>
-                    </div>
-                  ))}
+                  {event.tickets.map((ticket) => {
+                    const maximum = Math.max(0, Math.min(10, ticket.remaining));
+                    const canPurchase = ticket.configured && maximum > 0;
+                    const quantity = Math.min(quantities[ticket.priceId] ?? 1, maximum);
+                    return (
+                      <div className="ticket-tier" key={ticket.priceId}>
+                        <h3>{ticket.name}</h3>
+                        <strong>{formatPrice(ticket.price, ticket.currency)}</strong>
+                        {ticket.description && <p>{ticket.description}</p>}
+                        <p className="ticket-tier__availability">
+                          {!inventoryReady ? "Ticket availability is temporarily unavailable" : !ticket.configured ? "Tickets coming soon" : ticket.remaining > 0
+                            ? `${ticket.remaining} remaining`
+                            : "Sold out"}
+                        </p>
+                        {canPurchase && (
+                          <label className="ticket-tier__quantity">
+                            Quantity
+                            <select
+                              aria-label={`Quantity for ${ticket.name}`}
+                              value={quantity}
+                              disabled={checkingOut !== null}
+                              onChange={(event) => setQuantities((previous) => ({ ...previous, [ticket.priceId]: Number(event.target.value) }))}
+                            >
+                              {Array.from({ length: maximum }, (_, index) => index + 1).map((count) => (
+                                <option key={count} value={count}>{count}</option>
+                              ))}
+                            </select>
+                          </label>
+                        )}
+                        <button onClick={() => void buyTickets(ticket.priceId, quantity)} disabled={checkingOut !== null || !canPurchase}>
+                          {checkingOut === ticket.priceId ? "Opening checkout…"
+                            : !inventoryReady ? "Temporarily unavailable"
+                              : !ticket.configured ? "Tickets coming soon"
+                              : !canPurchase ? "Sold out" : "Buy tickets"}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </article>

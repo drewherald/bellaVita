@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type Stripe from "stripe";
 import { getStripe, isEventProduct } from "./_stripe.js";
+import { getAvailability } from "./_inventory.js";
 
 export default async function handler(request: IncomingMessage, response: ServerResponse) {
   if (request.method !== "GET") {
@@ -9,12 +10,22 @@ export default async function handler(request: IncomingMessage, response: Server
   }
 
   try {
-    const prices = await getStripe().prices.list({
+    const prices: Stripe.Price[] = [];
+    for await (const price of getStripe().prices.list({
       active: true,
       type: "one_time",
       expand: ["data.product"],
       limit: 100,
-    });
+    })) prices.push(price);
+    let availability: Awaited<ReturnType<typeof getAvailability>> = new Map();
+    let inventoryReady = true;
+    try {
+      if (prices.length) availability = await getAvailability(prices.map((price) => price.id), prices[0].livemode);
+    } catch (error) {
+      inventoryReady = false;
+      const code = error && typeof error === "object" && "code" in error ? String(error.code) : "NOT_CONFIGURED";
+      console.error(`Inventory database unavailable (${code}); ticket sales are disabled.`);
+    }
 
     const eventMap = new Map<string, {
       id: string;
@@ -31,10 +42,12 @@ export default async function handler(request: IncomingMessage, response: Server
         description: string | null;
         price: number;
         currency: string;
+        configured: boolean;
+        remaining: number;
       }>;
     }>();
 
-    for (const price of prices.data) {
+    for (const price of prices) {
       const product = price.product as Stripe.Product | Stripe.DeletedProduct;
       if (!price.unit_amount || !isEventProduct(product)) continue;
 
@@ -55,6 +68,8 @@ export default async function handler(request: IncomingMessage, response: Server
         description: price.metadata.ticket_description || null,
         price: price.unit_amount,
         currency: price.currency.toUpperCase(),
+        configured: availability.get(price.id)?.configured ?? false,
+        remaining: availability.get(price.id)?.remaining ?? 0,
       });
       eventMap.set(product.id, event);
     }
@@ -63,11 +78,11 @@ export default async function handler(request: IncomingMessage, response: Server
       .map((event) => ({ ...event, tickets: event.tickets.sort((a, b) => a.price - b.price) }))
       .sort((a, b) => (a.date ?? "9999").localeCompare(b.date ?? "9999"));
 
-    response.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
+    response.setHeader("Cache-Control", "no-store");
     response.setHeader("Content-Type", "application/json");
-    response.end(JSON.stringify({ events }));
+    response.end(JSON.stringify({ events, inventoryReady }));
   } catch (error) {
-    console.error("Unable to load Stripe events", error);
+    console.error("Unable to load ticket availability.", error instanceof Error ? error.name : "Unknown error");
     response.statusCode = 500;
     response.end(JSON.stringify({ error: "Events are unavailable right now." }));
   }

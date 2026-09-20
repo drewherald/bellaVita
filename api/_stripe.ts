@@ -4,7 +4,7 @@ let stripe: Stripe | undefined;
 
 export const getStripe = () => {
   if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not configured");
-  stripe ??= new Stripe(process.env.STRIPE_SECRET_KEY);
+  stripe ??= new Stripe(process.env.STRIPE_SECRET_KEY, { timeout: 10_000, maxNetworkRetries: 2 });
   return stripe;
 };
 

@@ -1,59 +1,62 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type Stripe from "stripe";
 import { getStripe, isEventProduct } from "./_stripe.js";
-
-const readBody = async (request: IncomingMessage) => {
-  let body = "";
-  for await (const chunk of request) body += chunk;
-  return JSON.parse(body) as { priceId?: unknown };
-};
+import { ensureCheckoutSession, reserveTickets, validRequestId } from "./_inventory.js";
+import { HttpError, json, readRawBody, siteUrl } from "./_http.js";
 
 export default async function handler(request: IncomingMessage, response: ServerResponse) {
-  response.setHeader("Content-Type", "application/json");
   if (request.method !== "POST") {
-    response.writeHead(405, { Allow: "POST" }).end(JSON.stringify({ error: "Method not allowed" }));
-    return;
+    response.setHeader("Allow", "POST");
+    return json(response, 405, { error: "Method not allowed" });
   }
-
   try {
-    const { priceId } = await readBody(request);
-    if (typeof priceId !== "string" || !priceId.startsWith("price_")) {
-      response.statusCode = 400;
-      response.end(JSON.stringify({ error: "Invalid event selection." }));
-      return;
+    const origin = siteUrl();
+    if (request.headers.origin && request.headers.origin !== origin && process.env.NODE_ENV !== "development") {
+      throw new HttpError(403, "Checkout must be started from our website.");
     }
-
-    const stripe = getStripe();
-    const price = await stripe.prices.retrieve(priceId, { expand: ["product"] });
+    let body: { priceId?: unknown; quantity?: unknown; requestId?: unknown };
+    try { body = JSON.parse((await readRawBody(request, 4096)).toString()); }
+    catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw new HttpError(400, "Invalid checkout request.");
+    }
+    if (!body || typeof body !== "object") throw new HttpError(400, "Invalid checkout request.");
+    const { priceId, quantity, requestId } = body;
+    if (typeof priceId !== "string" || !/^price_[a-zA-Z0-9]+$/.test(priceId) || !validRequestId(requestId)) {
+      throw new HttpError(400, "Invalid event selection. Please refresh and try again.");
+    }
+    if (typeof quantity !== "number" || !Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+      throw new HttpError(400, "Choose a quantity between 1 and 10.");
+    }
+    const price = await getStripe().prices.retrieve(priceId, { expand: ["product"] });
     const product = price.product as Stripe.Product | Stripe.DeletedProduct;
     if (!price.active || price.type !== "one_time" || !isEventProduct(product)) {
-      response.statusCode = 400;
-      response.end(JSON.stringify({ error: "This event is not available." }));
-      return;
+      throw new HttpError(400, "This event is not available.");
     }
-
-    const host = request.headers["x-forwarded-host"] ?? request.headers.host;
-    const protocol = request.headers["x-forwarded-proto"] ?? (process.env.NODE_ENV === "development" ? "http" : "https");
-    const siteUrl = process.env.SITE_URL || `${protocol}://${host}`;
-    const session = await stripe.checkout.sessions.create({
+    const reservationId = requestId.toLowerCase();
+    const params: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
-      line_items: [{
-        price: price.id,
-        quantity: 1,
-        adjustable_quantity: { enabled: true, minimum: 1, maximum: 10 },
-      }],
-      success_url: `${siteUrl}/events?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/events?checkout=cancelled`,
+      payment_method_types: ["card"],
+      line_items: [{ price: price.id, quantity }],
+      success_url: `${origin}/events?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/events?checkout=cancelled`,
       billing_address_collection: "auto",
       customer_creation: "always",
       allow_promotion_codes: true,
-      metadata: { event_product_id: product.id },
-    });
-
-    response.end(JSON.stringify({ url: session.url }));
+      client_reference_id: reservationId,
+      metadata: {
+        reservation_id: reservationId, event_product_id: product.id,
+        price_id: price.id, quantity: String(quantity),
+      },
+      expand: ["line_items"],
+    };
+    const reservation = await reserveTickets({ requestId: reservationId, priceId, quantity, livemode: price.livemode, checkoutParams: params });
+    const session = await ensureCheckoutSession(reservation);
+    if (session.status !== "open" || !session.url) throw new HttpError(409, "This checkout has already ended. Please try again.");
+    json(response, 200, { url: session.url });
   } catch (error) {
-    console.error("Unable to create Stripe Checkout Session", error);
-    response.statusCode = 500;
-    response.end(JSON.stringify({ error: "Checkout could not be started. Please try again." }));
+    if (error instanceof HttpError) return json(response, error.statusCode, { error: error.message });
+    console.error("Unable to start ticket checkout. Any uncertain reservation remains held.");
+    json(response, 503, { error: "Checkout could not be started. Please retry the same selection shortly." });
   }
 }

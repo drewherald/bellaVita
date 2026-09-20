@@ -12,9 +12,11 @@ To publish an event in Stripe:
 4. Optionally add `location`, `age`, and `capacity`; the product description and first product image also appear on the event card.
 5. Add more one-time Prices to the same Product for ticket tiers. A Price's `ticket_name` and `ticket_description` metadata control its display copy (its nickname is used as a fallback name).
 
-Copy `.env.example` to `.env.local`, add a Stripe test secret, and run the app with `npm run dev`. The Vite development server exposes the same Stripe API routes locally; Vercel runs them as serverless functions after deployment.
+Copy `.env.example` to `.env.local`, add a Stripe test secret, and run the app with `npm run dev`. The Vite development server exposes the same Stripe API routes locally. Dokploy runs the production Node server with `npm start` after `npm run build`.
 
-Set `STRIPE_SECRET_KEY` and `SITE_URL` in the deployment environment. Use Stripe test mode until the entire checkout flow has been verified.
+Ticket availability is stored in PostgreSQL by Price ID. See [the Dokploy inventory setup guide](docs/dokploy-inventory.md) for deployment, Stripe webhooks, initial inventory, local testing, and recovery. The guide includes the supplied 68-ticket and 8-ticket prices. Set `DATABASE_URL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SITE_URL` in Dokploy; initialize with `npm run inventory:setup` in the deployed application terminal. Test checkout using a Stripe sandbox before opening sales.
+
+Dokploy's internal database hostname cannot resolve on your laptop. `npm run dev` can preview events with purchasing disabled when inventory is unreachable. `npm run dev:inventory` starts a separate local PostgreSQL instance for Stripe test-mode checkout.
 
 ## Frontend
 

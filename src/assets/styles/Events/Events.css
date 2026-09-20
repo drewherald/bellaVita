@@ -136,6 +136,10 @@
 .ticket-tier h3 { margin: 0 0 .35rem; font-size: .95rem; font-weight: 500; }
 .ticket-tier strong { font-size: clamp(2.2rem, 4vw, 3.2rem); line-height: 1.1; }
 .ticket-tier p { min-height: 2.7em; margin: 1rem 0 1.5rem; color: #ddd; font-size: .83rem; font-style: italic; }
+.ticket-tier .ticket-tier__availability { min-height: 0; margin: 1rem 0; color: #e6d2bc; font-style: normal; }
+.ticket-tier__quantity { display: flex; align-items: center; gap: .8rem; margin-bottom: 1.25rem; font-size: .85rem; }
+.ticket-tier__quantity select { border: 1px solid #888; border-radius: 3px; padding: .5rem .7rem; background: #191919; color: #fff; font: inherit; }
+.ticket-tier__quantity select:focus-visible, .ticket-tier button:focus-visible { outline: 2px solid #e6d2bc; outline-offset: 3px; }
 
 .ticket-tier button,
 .private-events a {
@@ -152,8 +156,8 @@
 }
 
 .ticket-tier button { width: min(100%, 310px); margin-top: auto; padding: .72rem 1.1rem; }
-.ticket-tier button:hover, .private-events a:hover { background: #ad1020; }
-.ticket-tier button:disabled { cursor: wait; opacity: .65; }
+.ticket-tier button:hover:not(:disabled), .private-events a:hover { background: #ad1020; }
+.ticket-tier button:disabled { cursor: not-allowed; opacity: .65; }
 
 .events-state { margin: 3rem 0; text-align: center; }
 .events-state h2 { font-size: 2.2rem; font-weight: 400; }
