@@ -5,6 +5,8 @@ import { getStripe } from "./_stripe.js";
 
 export class InventoryError extends HttpError {}
 
+export const TICKET_HOLD_MINUTES = 10;
+
 export type Reservation = {
   id: string;
   price_id: string;
@@ -70,8 +72,8 @@ export async function reserveTickets(input: {
     }
     const result = await client.query<Reservation>(`
       INSERT INTO ticket_reservations (id, price_id, livemode, quantity, checkout_params, expires_at)
-      VALUES ($1, $2, $3, $4, $5, now() + interval '35 minutes') RETURNING *
-    `, [input.requestId, input.priceId, input.livemode, input.quantity, JSON.stringify(input.checkoutParams)]);
+      VALUES ($1, $2, $3, $4, $5, now() + $6::integer * interval '1 minute') RETURNING *
+    `, [input.requestId, input.priceId, input.livemode, input.quantity, JSON.stringify(input.checkoutParams), TICKET_HOLD_MINUTES]);
     return result.rows[0];
   });
 }
@@ -122,7 +124,7 @@ export async function ensureCheckoutSession(reservation: Reservation): Promise<S
     : await stripe.checkout.sessions.create(reservation.checkout_params, { idempotencyKey: `bv_ticket_${reservation.id}` });
   // End the hold in Stripe before releasing stock. Omitting expires_at from create
   // params keeps a lost first request safely retryable beyond Stripe's 30m minimum.
-  if (session.status === "open" && Date.now() - reservation.created_at.getTime() >= 35 * 60 * 1000) {
+  if (session.status === "open" && Date.now() - reservation.created_at.getTime() >= TICKET_HOLD_MINUTES * 60 * 1000) {
     try {
       session = await stripe.checkout.sessions.expire(session.id, { expand: ["line_items"] });
     } catch {

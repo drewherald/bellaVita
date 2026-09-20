@@ -3,7 +3,6 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import "../assets/styles/Events/Events.css";
 import heroImage from "../assets/photos/home/stockinside.jpg";
-import privateDiningImage from "../assets/photos/home/privateDining.png";
 
 type Ticket = {
   priceId: string;
@@ -266,13 +265,13 @@ export default function Events() {
           ))}
         </section>
 
-        <section className="private-events" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,.52), rgba(0,0,0,.62)), url(${privateDiningImage})` }}>
+       {/* <section className="private-events" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,.52), rgba(0,0,0,.62)), url(${privateDiningImage})` }}>
           <div>
             <h2>Private Events</h2>
             <p>Book your table and settle in for a relaxed Italian meal, shared with good company.</p>
             <a href="/about">Reserve a table</a>
           </div>
-        </section>
+        </section>*/}
       </main>
       <Footer />
     </>

@@ -98,7 +98,7 @@ For local webhook delivery, use Stripe CLI `stripe listen --forward-to localhost
 
 ## Reservations, recovery and refunds
 
-- The server checks outstanding reservations every minute. After about 35 minutes, it expires an unpaid Checkout Session through Stripe before releasing stock. Stripe's default 24-hour session expiration is the fallback if the worker is down.
+- The server checks outstanding reservations every minute. At 10 minutes, an unpaid hold becomes eligible for expiration; tickets normally return within about 10–11 minutes. The server expires the Checkout Session through Stripe before releasing stock. Stripe's default 24-hour session expiration is the fallback if the worker is down. This deadline is measured from reservation creation and also applies to existing unpaid holds after deployment.
 - Returning from checkout does not immediately release the hold; a checkout may still be open in another tab.
 - Duplicate callbacks and checkout retries do not double-count tickets.
 - A network timeout leaves tickets held until Stripe confirms their state. Unbound holds older than 23 hours are not retried with potentially expired idempotency keys; they require review.

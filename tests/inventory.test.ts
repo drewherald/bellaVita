@@ -296,10 +296,27 @@ describe("PostgreSQL ticket inventory", { concurrency: false }, () => {
     assert.equal((await availability(priceId)).reserved, 2);
   });
 
-  test("an old hold releases only after Stripe confirms expiration", async (context) => {
+  test("a hold remains available to its buyer until the ten-minute deadline", async (context) => {
     const priceId = await createInventory(2);
     const reservation = await reserve(priceId, 2);
-    reservation.created_at = new Date(Date.now() - 36 * 60 * 1000);
+    assert.equal(reservation.expires_at.getTime() - reservation.created_at.getTime(), 10 * 60 * 1000);
+    const now = Date.now();
+    context.mock.method(Date, "now", () => now);
+    reservation.created_at = new Date(now - 10 * 60 * 1000 + 1);
+    const session = { ...await attachSession(reservation), status: "open", payment_status: "unpaid" } as Stripe.Checkout.Session;
+    context.mock.method(getStripe().checkout.sessions, "create", async () => session);
+    const expire = context.mock.method(getStripe().checkout.sessions, "expire", async () => { throw new Error("Too early to expire"); });
+    await ensureCheckoutSession(reservation);
+    assert.equal(expire.mock.callCount(), 0);
+    assert.equal((await availability(priceId)).reserved, 2);
+  });
+
+  test("a ten-minute-old hold releases only after Stripe confirms expiration", async (context) => {
+    const priceId = await createInventory(2);
+    const reservation = await reserve(priceId, 2);
+    const now = Date.now();
+    context.mock.method(Date, "now", () => now);
+    reservation.created_at = new Date(now - 10 * 60 * 1000);
     const session = { ...await attachSession(reservation), status: "open", payment_status: "unpaid" } as Stripe.Checkout.Session;
     context.mock.method(getStripe().checkout.sessions, "create", async () => session);
     context.mock.method(getStripe().checkout.sessions, "expire", async () => ({ ...session, status: "expired" }));
@@ -310,7 +327,7 @@ describe("PostgreSQL ticket inventory", { concurrency: false }, () => {
   test("payment winning an expiration race is recorded as sold", async (context) => {
     const priceId = await createInventory(2);
     const reservation = await reserve(priceId, 2);
-    reservation.created_at = new Date(Date.now() - 36 * 60 * 1000);
+    reservation.created_at = new Date(Date.now() - 11 * 60 * 1000);
     const paidSession = await attachSession(reservation);
     context.mock.method(getStripe().checkout.sessions, "create", async () => ({ ...paidSession, status: "open", payment_status: "unpaid" }));
     context.mock.method(getStripe().checkout.sessions, "expire", async () => { throw new Error("Session already completed"); });
