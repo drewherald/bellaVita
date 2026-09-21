@@ -9,7 +9,7 @@ import checkoutSessionHandler from "../api/checkout-session.js";
 import eventsHandler from "../api/events.js";
 import stripeWebhookHandler from "../api/stripe-webhook.js";
 import { getPool } from "../api/_db.js";
-import { reconcileReservations } from "../api/_inventory.js";
+import { reconcileReservations, reconciliationErrorDetails, TICKET_HOLD_MINUTES } from "../api/_inventory.js";
 
 const requiredVariables = ["SITE_URL", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "DATABASE_URL"];
 for (const name of requiredVariables) {
@@ -157,7 +157,10 @@ let stopping = false;
 function reconcile() {
   if (stopping || reconciliation) return;
   reconciliation = reconcileReservations()
-    .catch(() => console.error("Ticket reservation reconciliation failed; it will retry."))
+    .then((summary) => {
+      if (summary.expired || summary.paid || summary.failed) console.log("Ticket reservation reconciliation:", summary);
+    })
+    .catch((error) => console.error("Ticket reservation reconciliation failed; it will retry.", reconciliationErrorDetails(error)))
     .finally(() => { reconciliation = undefined; });
 }
 
@@ -195,5 +198,6 @@ server.on("error", () => {
 });
 server.listen(port, "0.0.0.0", () => {
   console.log(`Bella Vita is listening on port ${port}.`);
+  console.log(`Ticket holds expire after ${TICKET_HOLD_MINUTES} minutes; reconciliation runs every minute.`);
   reconcile();
 });

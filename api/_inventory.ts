@@ -84,7 +84,12 @@ export async function settleReservation(session: Stripe.Checkout.Session): Promi
   await transaction(async (client) => {
     const result = await client.query<Reservation>("SELECT * FROM ticket_reservations WHERE id = $1 FOR UPDATE", [id]);
     const reservation = result.rows[0];
-    if (!reservation) throw new Error("Unknown ticket reservation");
+    if (!reservation) {
+      // A confirmed expired, unpaid checkout cannot consume stock. A delayed
+      // expiration notification after an authorized reset needs no further work.
+      if (session.status === "expired" && session.payment_status === "unpaid") return;
+      throw new Error("Unknown ticket reservation");
+    }
     const line = session.line_items?.data[0];
     if (session.livemode !== reservation.livemode || session.client_reference_id !== reservation.id ||
       session.metadata?.price_id !== reservation.price_id || session.metadata?.quantity !== String(reservation.quantity) ||
@@ -127,34 +132,58 @@ export async function ensureCheckoutSession(reservation: Reservation): Promise<S
   if (session.status === "open" && Date.now() - reservation.created_at.getTime() >= TICKET_HOLD_MINUTES * 60 * 1000) {
     try {
       session = await stripe.checkout.sessions.expire(session.id, { expand: ["line_items"] });
-    } catch {
+    } catch (error) {
       // Payment or another worker may have won the race. A failed expire call alone
       // never proves inventory can be released; retrieve Stripe's current state.
       session = await stripe.checkout.sessions.retrieve(session.id, { expand: ["line_items"] });
+      if (session.status === "open") {
+        const failure = new InventoryError(503, "Stripe did not expire this checkout. Its tickets remain held.");
+        failure.cause = error;
+        throw failure;
+      }
     }
+    if (session.status === "open") throw new InventoryError(503, "Stripe returned an open checkout after expiration. Its tickets remain held.");
   }
   await settleReservation(session);
   return session;
 }
 
+export function reconciliationErrorDetails(error: unknown) {
+  const outer = error && typeof error === "object" ? error : {};
+  const inner = "cause" in outer && outer.cause && typeof outer.cause === "object" ? outer.cause : outer;
+  // Only diagnostic identifiers: never log Stripe request bodies, API keys or customer data.
+  return Object.fromEntries(["name", "type", "code", "statusCode", "requestId"].flatMap((key) => {
+    const value = (inner as Record<string, unknown>)[key];
+    return typeof value === "string" || typeof value === "number" ? [[key, value]] : [];
+  }));
+}
+
 let reconciling = false;
-export async function reconcileReservations(): Promise<void> {
-  if (reconciling) return;
+export async function reconcileReservations(options: { force?: boolean } = {}) {
+  const summary = { checked: 0, expired: 0, paid: 0, stillOpen: 0, failed: 0, skipped: false };
+  if (reconciling) return { ...summary, skipped: true };
   reconciling = true;
   try {
     const result = await getPool().query<Reservation>(`
       SELECT * FROM ticket_reservations WHERE status IN ('pending', 'open')
-        AND (last_checked_at IS NULL OR last_checked_at < now() - interval '55 seconds')
+        AND ($1::boolean OR last_checked_at IS NULL OR last_checked_at < now() - interval '55 seconds')
       ORDER BY last_checked_at ASC NULLS FIRST, created_at ASC LIMIT 100
-    `);
+    `, [options.force ?? false]);
     for (const reservation of result.rows) {
-      // Throttle failed requests too. A timeout never authorizes releasing inventory.
-      await getPool().query("UPDATE ticket_reservations SET last_checked_at = now() WHERE id = $1", [reservation.id]);
+      summary.checked += 1;
       try {
-        await ensureCheckoutSession(reservation);
-      } catch {
-        console.error(`Unable to reconcile ticket reservation ${reservation.id}; its tickets remain held.`);
+        // A locked row must not prevent the rest of the batch from being reconciled.
+        // A timeout never authorizes releasing inventory.
+        await getPool().query("UPDATE ticket_reservations SET last_checked_at = now() WHERE id = $1", [reservation.id]);
+        const session = await ensureCheckoutSession(reservation);
+        if (session.status === "expired") summary.expired += 1;
+        else if (session.status === "complete" && ["paid", "no_payment_required"].includes(session.payment_status)) summary.paid += 1;
+        else summary.stillOpen += 1;
+      } catch (error) {
+        summary.failed += 1;
+        console.error(`Unable to reconcile ticket reservation ${reservation.id}; its tickets remain held.`, reconciliationErrorDetails(error));
       }
     }
+    return summary;
   } finally { reconciling = false; }
 }

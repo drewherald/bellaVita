@@ -10,6 +10,10 @@ export function getPool(): Pool {
       max: 10,
       connectionTimeoutMillis: 5_000,
       idleTimeoutMillis: 30_000,
+      application_name: "bella-vita-inventory",
+      // Bound server-side waits so a blocked statement cannot stall cleanup forever.
+      lock_timeout: 5_000,
+      statement_timeout: 15_000,
     });
     pool.on("error", () => console.error("An idle database connection failed."));
   }

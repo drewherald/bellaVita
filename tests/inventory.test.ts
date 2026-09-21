@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { after, before, describe, test } from "node:test";
 import type Stripe from "stripe";
 import { getPool } from "../api/_db.js";
-import { ensureCheckoutSession, getAvailability, reserveTickets, settleReservation } from "../api/_inventory.js";
+import { ensureCheckoutSession, getAvailability, reconcileReservations, reconciliationErrorDetails, reserveTickets, settleReservation } from "../api/_inventory.js";
 import { getStripe } from "../api/_stripe.js";
 
 type Reservation = Awaited<ReturnType<typeof reserveTickets>>;
@@ -117,6 +117,108 @@ describe("PostgreSQL ticket inventory", { concurrency: false }, () => {
       }
     } finally {
       await getPool().end();
+    }
+  });
+
+  test("the authorized reservation reset preserves capacity and rejects paid or additional reservations", async () => {
+    const priceId = await createInventory(68, { priceId: "price_1UGlxi2KxPxu7vVIIYNof91a", livemode: true });
+    const sql = await readFile(resolve("scripts/reset-ticket-reservations.sql"), "utf8");
+    try {
+      const reservation = await reserve(priceId, 2, "ff38d3aa-3d38-4662-882a-8db34ad8771d", true);
+      await getPool().query("UPDATE ticket_reservations SET status = 'paid' WHERE id = $1", [reservation.id]);
+      await assert.rejects(getPool().query(sql), /paid reservations exist/);
+      assert.equal((await availability(priceId, true)).sold, 2);
+      await getPool().query("UPDATE ticket_reservations SET status = 'expired' WHERE id = $1", [reservation.id]);
+      const additional = await reserve(priceId, 1, randomUUID(), true);
+      await assert.rejects(getPool().query(sql), /additional reservation/);
+      assert.equal((await availability(priceId, true)).reserved, 1);
+      await getPool().query("DELETE FROM ticket_reservations WHERE id = $1", [additional.id]);
+      await getPool().query(sql);
+      assert.deepEqual(await availability(priceId, true), {
+        capacity: 68, sold: 0, reserved: 0, remaining: 68, configured: true,
+      });
+      assert.equal((await getPool().query("SELECT count(*)::integer AS count FROM ticket_reservations")).rows[0].count, 0);
+    } finally {
+      await getPool().query("DELETE FROM ticket_reservations WHERE price_id = $1", [priceId]);
+    }
+  });
+
+  test("a delayed expiration after reset is harmless but an unknown payment still fails", async () => {
+    const priceId = await createInventory(2);
+    const reservation = await reserve(priceId, 2);
+    const session = await attachSession(reservation);
+    await getPool().query("DELETE FROM ticket_reservations WHERE id = $1", [reservation.id]);
+    await settleReservation({ ...session, status: "expired", payment_status: "unpaid" });
+    await assert.rejects(settleReservation(session), /Unknown ticket reservation/);
+    await assert.rejects(settleReservation({ ...session, status: "open", payment_status: "unpaid" }), /Unknown ticket reservation/);
+    assert.equal((await availability(priceId)).remaining, 2);
+  });
+
+  test("manual reconciliation retries recently checked holds and reports failed expiration", async (context) => {
+    const priceId = await createInventory(2);
+    const reservations = await Promise.all([reserve(priceId, 1), reserve(priceId, 1)]);
+    const sessions = await Promise.all(reservations.map(async (reservation) => ({
+      ...await attachSession(reservation), status: "open", payment_status: "unpaid",
+    } as Stripe.Checkout.Session)));
+    const failure = Object.assign(new Error("Sensitive upstream response"), {
+      type: "StripePermissionError", statusCode: 403, requestId: "req_test_expiration",
+      apiKey: "secret_test_value", customer: "private_customer_value",
+    });
+    context.mock.method(getStripe().checkout.sessions, "retrieve", async (id: string) => sessions.find((session) => session.id === id));
+    context.mock.method(getStripe().checkout.sessions, "expire", async (id: string) => {
+      if (id === sessions[1].id) throw failure;
+      return { ...sessions[0], status: "expired" };
+    });
+    const errors = context.mock.method(console, "error", () => {});
+    try {
+      await getPool().query("UPDATE ticket_reservations SET created_at = now() - interval '11 minutes', last_checked_at = now() WHERE price_id = $1", [priceId]);
+      assert.equal((await reconcileReservations()).checked, 0);
+      assert.deepEqual(await reconcileReservations({ force: true }), {
+        checked: 2, expired: 1, paid: 0, stillOpen: 0, failed: 1, skipped: false,
+      });
+      assert.equal((await availability(priceId)).remaining, 1);
+      assert.equal((await availability(priceId)).reserved, 1);
+      assert.equal(errors.mock.callCount(), 1);
+      assert.deepEqual(errors.mock.calls[0].arguments[1], {
+        name: "Error", type: "StripePermissionError", statusCode: 403, requestId: "req_test_expiration",
+      });
+      assert.deepEqual(reconciliationErrorDetails({ cause: failure }), errors.mock.calls[0].arguments[1]);
+    } finally {
+      await getPool().query("DELETE FROM ticket_reservations WHERE price_id = $1", [priceId]);
+    }
+  });
+
+  test("a locked reservation times out without stopping cleanup of other holds", async (context) => {
+    const priceId = await createInventory(2);
+    const reservations = await Promise.all([reserve(priceId, 1), reserve(priceId, 1)]);
+    const sessions = await Promise.all(reservations.map(async (reservation) => ({
+      ...await attachSession(reservation), status: "open", payment_status: "unpaid",
+    } as Stripe.Checkout.Session)));
+    await getPool().query("UPDATE ticket_reservations SET created_at = now() - interval '11 minutes', last_checked_at = now() WHERE price_id = $1", [priceId]);
+    // Put the blocked row first, so success on the other row proves the loop continued.
+    await getPool().query("UPDATE ticket_reservations SET last_checked_at = NULL WHERE id = $1", [reservations[0].id]);
+    context.mock.method(getStripe().checkout.sessions, "retrieve", async (id: string) => sessions.find((session) => session.id === id));
+    context.mock.method(getStripe().checkout.sessions, "expire", async (id: string) => ({
+      ...sessions.find((session) => session.id === id), status: "expired",
+    }));
+    const errors = context.mock.method(console, "error", () => {});
+    const blocker = await getPool().connect();
+    try {
+      await blocker.query("BEGIN");
+      await blocker.query("SELECT 1 FROM ticket_reservations WHERE id = $1 FOR UPDATE", [reservations[0].id]);
+      assert.deepEqual(await reconcileReservations({ force: true }), {
+        checked: 2, expired: 1, paid: 0, stillOpen: 0, failed: 1, skipped: false,
+      });
+      assert.equal((await availability(priceId)).reserved, 1);
+      assert.equal(errors.mock.callCount(), 1);
+      assert.equal((errors.mock.calls[0].arguments[1] as { code: string }).code, "55P03");
+      await blocker.query("ROLLBACK");
+      assert.equal((await reconcileReservations({ force: true })).expired, 1);
+      assert.equal((await availability(priceId)).remaining, 2);
+    } finally {
+      await blocker.query("ROLLBACK");
+      blocker.release();
+      await getPool().query("DELETE FROM ticket_reservations WHERE price_id = $1", [priceId]);
     }
   });
 
