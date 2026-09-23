@@ -58,6 +58,15 @@ export default function Events() {
   const checkoutSessionId = query.get("session_id");
   const [paymentStatus, setPaymentStatus] = useState<"checking" | "confirmed" | "unverified">("checking");
 
+  const today = new Date();
+  const targetDate = new Date('2026-10-05'); // Uses the current year (2026)
+  let showStaticEvent = false;
+  if (today < targetDate) {
+      // Your code runs if the current date is before October 5
+     showStaticEvent = true;
+  }
+
+
   const refreshEvents = useCallback((signal?: AbortSignal) =>
     fetch("/api/events", { signal, cache: "no-store" })
       .then((response) => {
@@ -204,7 +213,7 @@ export default function Events() {
             </div>
           )}
 
-          <article className="event-card" >
+      {   showStaticEvent && <article className="event-card" >
               <div className="event-card__heading"><span />{"Upcoming Event"}<span /></div>
               <div className="event-card__feature">
                 <div className="event-card__image-wrap">
@@ -220,7 +229,7 @@ export default function Events() {
                   </p>
                 </div>
               </div>
-            </article>
+            </article>}
 
           {events.map((event, index) => (
             <article className="event-card" key={event.id}>
