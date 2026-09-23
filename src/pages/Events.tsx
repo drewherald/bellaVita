@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import "../assets/styles/Events/Events.css";
 import heroImage from "../assets/photos/home/stockinside.jpg";
+import tonyocean from '../assets/photos/events/tonyocean.jpg'
 
 type Ticket = {
   priceId: string;
@@ -202,6 +203,25 @@ export default function Events() {
               <p>Check back for our next dinner, tasting, or special celebration.</p>
             </div>
           )}
+
+          <article className="event-card" >
+              <div className="event-card__heading"><span />{"Upcoming Event"}<span /></div>
+              <div className="event-card__feature">
+                <div className="event-card__image-wrap">
+                  <img className="event-card__image" src={tonyocean} alt="" /> 
+                </div>
+                <div className="event-card__body">
+                  <p className="event-card__kicker">A Bella Vita Special Event</p>
+                  <h2>Tony Ocean</h2>
+                  <p className="event-card__date">Sunday, October 4, 2026 at 7:00 PM</p>
+                  <p>Bella Vita Restaurant</p>
+                  <p className="event-card__description">Get ready for an unforgettable night with Tony Ocean, bringing smooth vocals, timeless favorites, and high-energy entertainment to the stage.
+                    Tony's upbeat style embodies a time from the past that will be popular as long as we still enjoy the music of Sinatra, Martin, Davis, and others whose romantic songs and lyrics have affected so many of our lives through the years.
+                  </p>
+                </div>
+              </div>
+            </article>
+
           {events.map((event, index) => (
             <article className="event-card" key={event.id}>
               <div className="event-card__heading"><span />{index === 0 ? "Featured Event" : "Upcoming Event"}<span /></div>
