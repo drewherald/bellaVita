@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import "../assets/styles/Events/Events.css";
-import heroImage from "../assets/photos/home/stockinside.jpg";
+import heroImage from "../assets/photos/about/aboutHero.jpg";
 import tonyocean from '../assets/photos/events/tonyocean.jpg'
 
 type Ticket = {

@@ -1,12 +1,13 @@
-import { Box, /*IconButton*/ } from "@mui/material";
-/*import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";*/
+import { Box } from "@mui/material";
 import logo from '../assets/photos/bellaVitaLogo.png'
 import { Link } from "react-router-dom";
+import NavbarLinks from "./NavbarLinks";
 
 export default function Navbar() {
   return (
     <Box
+      component="nav"
+      aria-label="Main navigation"
       sx={{
         top: 0,
         display: "flex",
@@ -19,25 +20,11 @@ export default function Navbar() {
         backgroundColor: 'black',
       }}
     >
-      <Link to="/" style={{width: '15svw', padding: '0 20px', display: 'flex', justifyContent: 'flex-start'}}>
-        <img src={logo} alt="bella vita" style={{maxWidth: '7.5svw'}}/>
-      </Link>
-      <Box display="flex" gap={4}>
-        {["Home", "Menu", "Events", "About", "Apply"/*"Gallery", "Reserve"*/].map((item) => (
-           <Link to={item === "Home" ? '/' : `/${item.toLowerCase()}`} key={item} style={{ cursor: "pointer", textDecoration: 'none', color: 'white' }}>
-            {item}
-          </Link>
-        ))}
+      <Box component={Link} to="/" sx={{width: { xs: 'auto', sm: '15svw' }, padding: '0 20px', display: 'flex', justifyContent: 'flex-start'}}>
+        <Box component="img" src={logo} alt="bella vita" sx={{maxWidth: { xs: '90px', sm: '7.5svw' }}}/>
       </Box>
-
-      <Box  gap={2} sx={{width: '15svw', padding: '0 20px', display:"flex", justifyContent: 'end'}}>
-       {/* <IconButton sx={{ color: "white" }}>
-          <FacebookIcon />
-        </IconButton>
-        <IconButton sx={{ color: "white" }}>
-          <InstagramIcon />
-        </IconButton>*/}
-      </Box>
+      <NavbarLinks />
+      <Box aria-hidden="true" sx={{width: '15svw', padding: '0 20px', display: { xs: 'none', sm: 'block' }}} />
     </Box>
   );
 }
