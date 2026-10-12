@@ -13,6 +13,8 @@ export default function ComingSoonHero() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         position: "relative",
+        // Keep hero content below the navbar when a short viewport makes them overlap.
+        isolation: "isolate",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",

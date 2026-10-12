@@ -25,6 +25,7 @@ function App() {
 
   return (
     <>
+      <div style={{maxWidth: '100svw !important'}}>
       <ThemeProvider theme={THEME}>
       <ScrollToTop />
       <Routes>
@@ -40,6 +41,7 @@ function App() {
 
       </Routes>
       </ThemeProvider>
+      </div>
     </>
   )
 }

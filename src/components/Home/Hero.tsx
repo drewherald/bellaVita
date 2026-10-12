@@ -29,7 +29,7 @@ export default function Hero() {
       />
 
       <Box sx={{zIndex: '2'}}>
-            <img src={logo} alt="bella vita"/>
+            <img style={{maxHeight: '40svh'}} src={logo} alt="bella vita"/>
         <Box mt={4} display="flex" gap={3} justifyContent="center">
           <RedButton data={{text: 'View Menu', link: '/'}} />
           <RedButton data={{text: 'Reservations', link: '/'}} />
