@@ -3,7 +3,6 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import "../assets/styles/Events/Events.css";
 import heroImage from "../assets/photos/about/aboutHero.jpg";
-import tonyocean from '../assets/photos/events/tonyocean.jpg'
 
 type Ticket = {
   priceId: string;
@@ -60,11 +59,12 @@ export default function Events() {
 
   const today = new Date();
   const targetDate = new Date('2026-10-05'); // Uses the current year (2026)
-  let showStaticEvent = false;
+  
+  /*let showStaticEvent = false;
   if (today < targetDate) {
       // Your code runs if the current date is before October 5
      showStaticEvent = true;
-  }
+  }*/
 
 
   const refreshEvents = useCallback((signal?: AbortSignal) =>
