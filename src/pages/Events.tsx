@@ -57,10 +57,12 @@ export default function Events() {
   const checkoutSessionId = query.get("session_id");
   const [paymentStatus, setPaymentStatus] = useState<"checking" | "confirmed" | "unverified">("checking");
 
+
+  /*
   const today = new Date();
   const targetDate = new Date('2026-10-05'); // Uses the current year (2026)
   
-  /*let showStaticEvent = false;
+  let showStaticEvent = false;
   if (today < targetDate) {
       // Your code runs if the current date is before October 5
      showStaticEvent = true;
